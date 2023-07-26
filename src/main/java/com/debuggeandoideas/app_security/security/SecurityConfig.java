@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,16 +19,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+//@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         var requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName("_csrf");
-        http.authorizeHttpRequests(auth ->
-                auth.requestMatchers("/loans", "/balance", "/accounts", "/cards")
-                        .authenticated()
-                        .anyRequest().permitAll())
+         http.authorizeHttpRequests(auth ->
+                //auth.requestMatchers("/loans", "/balance", "/accounts", "/cards")
+                     auth
+                             .requestMatchers("/loans", "/balance").hasRole("USER")
+                             .requestMatchers("/accounts", "/cards").hasRole("ADMIN")
+                         .anyRequest().permitAll())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults());
         http.cors(cors -> corsConfigurationSource());
@@ -48,9 +52,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         var config = new CorsConfiguration();
 
-        //config.setAllowedOrigins(List.of("http://localhost:4200", "http://my-app.com"));
         config.setAllowedOrigins(List.of("*"));
-        //config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
 
