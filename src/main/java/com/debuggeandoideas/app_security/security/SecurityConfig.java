@@ -1,10 +1,8 @@
 package com.debuggeandoideas.app_security.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,22 +17,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-//@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.addFilterBefore(new ApiKeyFilter(), BasicAuthenticationFilter.class);
         var requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName("_csrf");
          http.authorizeHttpRequests(auth ->
-                //auth.requestMatchers("/loans", "/balance", "/accounts", "/cards")
                      auth
                              .requestMatchers("/loans", "/balance").hasRole("USER")
                              .requestMatchers("/accounts", "/cards").hasRole("ADMIN")
-                            //.requestMatchers("/loans").hasAuthority("VIEW_LOANS")
-                            //.requestMatchers("/balance").hasAuthority("VIEW_BALANCE")
-                            //.requestMatchers("/cards").hasAuthority("VIEW_CARDS")
-                            //.requestMatchers("/accounts").hasAnyAuthority("VIEW_ACCOUNT", "VIEW_CARDS")
                          .anyRequest().permitAll())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults());
