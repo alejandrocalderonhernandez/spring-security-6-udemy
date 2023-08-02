@@ -89,13 +89,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter() {
-        var converter = new JwtGrantedAuthoritiesConverter();
-        converter.setAuthorityPrefix("");
-        return converter;
-    }
-
-    @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         var authConverter = new JwtGrantedAuthoritiesConverter();
         authConverter.setAuthoritiesClaimName("roles");
